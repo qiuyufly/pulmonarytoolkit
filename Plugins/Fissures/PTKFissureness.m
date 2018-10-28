@@ -26,7 +26,7 @@ classdef PTKFissureness < PTKPlugin
     %
     
     properties
-        ButtonText = 'Fissureness'
+        ButtonText = 'PTKFissureness'
         ToolTip = 'Fissureness filter for detecting plane-like points with suppression of points close to vessels'
         Category = 'Fissures'
         
@@ -45,12 +45,30 @@ classdef PTKFissureness < PTKPlugin
     methods (Static)
         
         function results = RunPlugin(dataset, reporting)
-            fissureness_from_hessian = single(dataset.GetResult('PTKFissurenessHessianFactor').RawImage)/100;
+            fissureness_pack_result = dataset.GetResult('PTKFissurenessHessianFactor');
+            PTKfissureness_from_hessian = single(fissureness_pack_result.PTKfissureness.RawImage)/100;
+            MYfissureness_from_hessian = single(fissureness_pack_result.MYfissureness.RawImage)/100;
             fissureness_from_vessels = single(dataset.GetResult('PTKFissurenessVesselsFactor').RawImage)/100;
-            results = dataset.GetTemplateImage(PTKContext.LungROI);
-            results.ChangeRawImage(100*fissureness_from_vessels.*fissureness_from_hessian);
-            results.ImageType = PTKImageType.Scaled;
+            PTKfissureness = dataset.GetTemplateImage(PTKContext.LungROI);
+            MYfissureness = dataset.GetTemplateImage(PTKContext.LungROI);
+            PTKfissureness.ChangeRawImage(100*fissureness_from_vessels.*PTKfissureness_from_hessian);
+            MYfissureness.ChangeRawImage(100*fissureness_from_vessels.*MYfissureness_from_hessian);
+            PTKfissureness.ImageType = PTKImageType.Scaled;
+            MYfissureness.ImageType = PTKImageType.Scaled;
+            results = [];
+            results.PTKfissureness = PTKfissureness;
+            results.MYfissureness = MYfissureness;
+            results.Vx = fissureness_pack_result.Vx;
+            results.Vy = fissureness_pack_result.Vy;
+            results.Vz = fissureness_pack_result.Vz;
         end        
         
+    
+        
+        function combined_image = GenerateImageFromResults(results, image_templates, ~)
+            combined_image = results.PTKfissureness;
+            results.ImageType = PTKImageType.Colormap;
+        end
     end
+        
 end

@@ -42,7 +42,6 @@ classdef PTKTopOfTrachea < PTKPlugin
         ButtonHeight = 2
         GeneratePreview = true
         Visibility = 'Developer'
-        Version = 2
     end
     
     methods (Static)
@@ -55,8 +54,21 @@ classdef PTKTopOfTrachea < PTKPlugin
                 threshold_image = lung_threshold.LungMask;
             else
                 threshold_image = dataset.GetResult('PTKThresholdLung');
-            end            
-            [top_of_trachea, trachea_voxels] = PTKFindTopOfTrachea(threshold_image, reporting, PTKSoftwareInfo.GraphicalDebugMode);
+            end 
+             % Get the lung segmentation manual control value
+            current_path = mfilename('fullpath');
+            [path_root, ~, ~] = fileparts(current_path);
+            full_filename = fullfile(path_root,'..','..','User', 'Library', 'MYIfManualLungSegmentation.txt');
+            FidOpen = fopen(full_filename,'r');
+            tline1 = fgetl(FidOpen);
+            fclose(FidOpen);
+            lung_segmentation_control_value = str2num(tline1(29));
+            if ~lung_segmentation_control_value
+                [top_of_trachea, trachea_voxels] = PTKFindTopOfTrachea(threshold_image, reporting, PTKSoftwareInfo.GraphicalDebugMode);
+            else
+                [top_of_trachea, trachea_voxels] = MYFindTopOfTrachea(threshold_image, reporting, PTKSoftwareInfo.GraphicalDebugMode);
+            end
+            
             results = [];
             results.top_of_trachea = top_of_trachea;
             results.trachea_voxels = trachea_voxels;
@@ -78,7 +90,7 @@ classdef PTKTopOfTrachea < PTKPlugin
             trachea(trachea_voxels_local) = 2;
 
             trachea(top_of_trachea(1), top_of_trachea(2), top_of_trachea(3)) = 3;
-            trachea = MimImageUtilities.DrawBoxAround(trachea, top_of_trachea, 5, 3);
+            trachea = PTKImageUtilities.DrawBoxAround(trachea, top_of_trachea, 5, 3);
             
             
             results = template_image;

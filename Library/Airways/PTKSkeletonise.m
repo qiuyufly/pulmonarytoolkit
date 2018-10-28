@@ -15,10 +15,10 @@ function binary_image = PTKSkeletonise(binary_image, fixed_points_global, report
     end
     
     if ~exist('reporting', 'var')
-        reporting = CoreReportingDefault;
+        reporting = PTKReportingDefault;
     end
     
-    if isdeployed || exist('PTKFastIsSimplePoint') == 3 %#ok<EXIST>
+    if exist('PTKFastIsSimplePoint') == 3 %#ok<EXIST>
         use_mex_simple_point = true;
     else
         use_mex_simple_point = false;

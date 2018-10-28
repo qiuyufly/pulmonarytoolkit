@@ -31,7 +31,7 @@ classdef PTKFissurenessVesselsFactor < PTKPlugin
         ToolTip = 'The part of the fissureness filter which uses distance from points of high vesselness'
         Category = 'Fissures'
 
-        AllowResultsToBeCached = false
+        AllowResultsToBeCached = true
         AlwaysRunPlugin = false
         PluginType = 'ReplaceOverlay'
         HidePluginInDisplay = false
@@ -41,9 +41,6 @@ classdef PTKFissurenessVesselsFactor < PTKPlugin
         ButtonHeight = 2
         GeneratePreview = true
         Visibility = 'Developer'
-
-        MemoryCachePolicy = 'Temporary'
-        DiskCachePolicy = 'Off'
     end
     
     methods (Static)

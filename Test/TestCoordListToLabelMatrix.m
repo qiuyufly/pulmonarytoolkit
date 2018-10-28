@@ -1,4 +1,4 @@
-classdef TestCoordListToLabelMatrix < CoreTest
+classdef TestCoordListToLabelMatrix < PTKTest
     % PTKCoordListToLabelMatrix. Tests for the PTKCoordListToLabelMatrix class.
     %
     %
@@ -11,7 +11,7 @@ classdef TestCoordListToLabelMatrix < CoreTest
 
     methods
         function obj = TestCoordListToLabelMatrix
-            mock_reporting = CoreMockReporting;
+            mock_reporting = MockReporting;
             obj.CheckLabels({[1, 3, 5], [2, 44, 80], [13, 125]}, mock_reporting);
             obj.CheckLabels({[1, 5], [2, 44, 80, 33, 12, 3]}, mock_reporting);
         end

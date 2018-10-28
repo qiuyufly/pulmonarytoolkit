@@ -1,6 +1,6 @@
 function figure_handle = PTKShow2DSlicesInOneFigure(viewer_panel_handle, orientation, skip_sices, reporting)
     % PTKShowAll2DSlicesInOneFigure. Creates a figure showing every slice from a
-    %     MimViewerPanel object displayed in a grid
+    %     PTKViewerPanel object displayed in a grid
     %
     %
     %     Licence
@@ -11,7 +11,7 @@ function figure_handle = PTKShow2DSlicesInOneFigure(viewer_panel_handle, orienta
     %
 
     if nargin < 4
-        reporting = CoreReportingDefault;
+        reporting = PTKReportingDefault;
     end
     
     % Number of plots along x axis
@@ -73,7 +73,7 @@ function figure_handle = PTKShow2DSlicesInOneFigure(viewer_panel_handle, orienta
     
     % Choose a figure size that fils the vertical screen size, but with the
     % correct ratio
-    display_dimensions = CoreSystemUtilities.GetMonitorDimensions;
+    display_dimensions = PTKSystemUtilities.GetMonitorDimensions;
     
     % Adjust to take into account toolbars etc.
     display_height = display_dimensions(2) - 300;

@@ -43,8 +43,19 @@ classdef PTKMaximumFissurePointsHorizontal < PTKPlugin
             fissure_approximation = application.GetResult('PTKFissureApproximation');
             fissureness_roi = application.GetResult('PTKFissurenessROIHorizontal');
             lung_mask = application.GetResult('PTKLobesFromFissurePlaneOblique');
+            
+            fissureness_pack_results = application.GetResult('PTKFissureness');
+            Vx = fissureness_pack_results.Vx;
+            Vy = fissureness_pack_results.Vy;
+            Vz = fissureness_pack_results.Vz;
+            
+%             left_and_right_lungs = application.GetResult('PTKLeftAndRightLungs');
+%             right_lung = application.GetResult('PTKGetRightLungROI');
+%             left_lung = application.GetResult('PTKGetLeftLungROI');
+%             [Vx,Vy,Vz] = MYFissurenessHessianFactor(application,left_lung,right_lung, left_and_right_lungs, reporting)
                         
-            results = PTKMaximumFissurePointsHorizontal.GetResultsForLung(fissure_approximation, fissureness_roi.RightMidFissure, application.GetResult('PTKGetRightLungROI'), lung_mask, 1, 3, reporting);
+            results = PTKMaximumFissurePointsHorizontal.GetResultsForLung(Vx,Vy,Vz,fissure_approximation, fissureness_roi.PTKRightMidFissure,...
+                fissureness_roi.MYRightMidFissure, application.GetResult('PTKGetRightLungROI'), lung_mask, 1, 3, reporting);
             results.ResizeToMatch(fissure_approximation);
             results.ImageType = PTKImageType.Colormap;
         end
@@ -55,16 +66,46 @@ classdef PTKMaximumFissurePointsHorizontal < PTKPlugin
     
     methods (Static, Access = private)
         
-        function results = GetResultsForLung(fissure_approximation, fissureness_roi, lung_roi, lung_mask, lung_colour, fissure_colour, reporting)
+        function results = GetResultsForLung(Vx,Vy,Vz,fissure_approximation, PTKfissureness_roi, MYfissureness_roi, lung_roi, lung_mask, lung_colour, fissure_colour, reporting)
             lung_mask.ChangeRawImage(uint8(lung_mask.RawImage == lung_colour));
             
             fissure_approximation.ResizeToMatch(lung_roi);
-            fissureness_roi.ResizeToMatch(lung_roi);
+            PTKfissureness_roi.ResizeToMatch(lung_roi);
+            MYfissureness_roi.ResizeToMatch(lung_roi);
             lung_mask.ResizeToMatch(lung_roi);
-            lung_mask.ResizeToMatch(lung_roi);
+            Vx = Vx.Copy;
+            Vx.ResizeToMatch(lung_roi);
+            Vy = Vy.Copy;
+            Vy.ResizeToMatch(lung_roi);
+            Vz = Vz.Copy;
+            Vz.ResizeToMatch(lung_roi);
             
-            [max_fissure_indices, ref_image] = PTKGetMaxFissurePoints(fissure_approximation.RawImage == fissure_colour, lung_mask, fissureness_roi, lung_roi, lung_roi.ImageSize);
-            
+            % Get the developer value for horizontal fissure
+            current_path = mfilename('fullpath');
+            [path_root, ~, ~] = fileparts(current_path);
+            full_filename = fullfile(path_root,'..','..','User', 'Library', 'MYIfConnectedAnalysisRun.txt');
+            FidOpen = fopen(full_filename,'r');
+            tline1 = fgetl(FidOpen);
+            tline2 = fgetl(FidOpen);
+            tline3 = fgetl(FidOpen);
+            fclose(FidOpen);
+            RH_developer_value = str2num(tline3(36));
+            if ~RH_developer_value
+                [max_fissure_indices, ref_image] = PTKGetMaxFissurePoints(Vx.RawImage,Vy.RawImage,Vz.RawImage,fissure_approximation.RawImage == fissure_colour, lung_mask,...
+                    PTKfissureness_roi, MYfissureness_roi, lung_roi, lung_roi.ImageSize);
+            else
+                current_path = mfilename('fullpath');
+                [path_root, ~, ~] = fileparts(current_path);
+                full_filename = fullfile(path_root,'..','..','User', 'Library', 'MYEigenvectorConnectedSize.txt');
+                FidOpen = fopen(full_filename,'r');
+                tline1 = fgetl(FidOpen);
+                tline2 = fgetl(FidOpen);
+                tline3 = fgetl(FidOpen);
+                fclose(FidOpen);
+                Eig_min_connected_size = str2num(tline3(45:end));
+                [max_fissure_indices, ref_image] = MYGetMaxFissurePoints(Vx.RawImage,Vy.RawImage,Vz.RawImage,fissure_approximation.RawImage == fissure_colour, lung_mask,...
+                    PTKfissureness_roi, MYfissureness_roi, lung_roi, lung_roi.ImageSize, Eig_min_connected_size);
+            end
             if isempty(max_fissure_indices)
                 reporting.ShowWarning('PTKMaximumFissurePointsHorizontal:FissurePointsNotFound', ['The horizontal fissure could not be found.']);
             end

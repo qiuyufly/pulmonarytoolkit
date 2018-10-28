@@ -1,9 +1,9 @@
-classdef MockPlugin < MimPlugin
+classdef MockPlugin < PTKPlugin
     % MockPlugin. Part of the PTK test framework
     %
     % This class is used in tests in place of an object implementing the
-    % MimPlugin interface. It allows expected calls to be verified, while
-    % maintaining some of the expected behaviour of a MimPlugin object. 
+    % PTKPlugin interface. It allows expected calls to be verified, while
+    % maintaining some of the expected behaviour of a PTKPlugin object. 
     %
     %
     %     Licence

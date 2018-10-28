@@ -12,8 +12,8 @@ function results = PTKProcessAirwaySkeleton(skeleton_image, start_point, reporti
     %     start_point - coordinate of the first point in the skeleton (the
     %         trachea) as a coordinate vector [i,j,k]
     %
-    %     reporting (optional) - an object implementing CoreReportingInterface
-    %         for reporting progress and warnings
+    %     reporting (optional) - an object implementing the PTKReporting
+    %         interface for reporting progress and warnings
     %
     %
     %     Licence
@@ -58,7 +58,6 @@ function [results, skeleton_points, bifurcation_points, removed_points] = GetSke
     segments_to_do = skeleton_parent.GetIncompleteSegments;
     
     internal_loops_removed = 0;
-    
     while ~isempty(segments_to_do)
         current_skeleton_segment = segments_to_do(end);
         segments_to_do(end) = [];
@@ -152,9 +151,14 @@ function [results, skeleton_points, bifurcation_points, removed_points] = GetSke
         end
         
         % Furcation: create new segments and add them to the list of segments to do
+
         for neighbour_index = 1 : num_neighbours
             new_child = current_skeleton_segment.SpawnChild(neighbour_indices(neighbour_index));
-            segments_to_do(end + 1) = new_child; %#ok<AGROW>
+            if ~isempty(segments_to_do)
+                segments_to_do(end + 1) = new_child; %#ok<AGROW>
+            else 
+                segments_to_do = new_child;
+            end
         end
         
     end

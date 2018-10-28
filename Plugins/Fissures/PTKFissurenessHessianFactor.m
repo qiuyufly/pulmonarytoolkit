@@ -29,7 +29,7 @@ classdef PTKFissurenessHessianFactor < PTKPlugin
         ToolTip = 'The part of the fissureness filter which uses Hessian-based analysis'
         Category = 'Fissures'
 
-        AllowResultsToBeCached = false
+        AllowResultsToBeCached = true
         AlwaysRunPlugin = false
         PluginType = 'ReplaceOverlay'
         HidePluginInDisplay = false
@@ -39,10 +39,6 @@ classdef PTKFissurenessHessianFactor < PTKPlugin
         ButtonHeight = 2
         GeneratePreview = true
         Visibility = 'Developer'
-        Version = 2
-        
-        MemoryCachePolicy = 'Temporary'
-        DiskCachePolicy = 'Off'        
     end
     
     methods (Static)
@@ -52,39 +48,71 @@ classdef PTKFissurenessHessianFactor < PTKPlugin
             
             right_lung = dataset.GetResult('PTKGetRightLungROI');
             
-            fissureness_right = PTKFissurenessHessianFactor.ComputeFissureness(right_lung, left_and_right_lungs, reporting, false);
+            [PTKfiltered_image_right, MYfiltered_image_right,Vx_right,Vy_right,Vz_right] = PTKFissurenessHessianFactor.ComputeFissureness(right_lung, left_and_right_lungs, reporting, false);
             
             reporting.UpdateProgressValue(50);
             left_lung = dataset.GetResult('PTKGetLeftLungROI');
-            fissureness_left = PTKFissurenessHessianFactor.ComputeFissureness(left_lung, left_and_right_lungs, reporting, true);
+            [PTKfiltered_image_left, MYfiltered_image_left,Vx_left,Vy_left,Vz_left] = PTKFissurenessHessianFactor.ComputeFissureness(left_lung, left_and_right_lungs, reporting, true);
             
             reporting.UpdateProgressValue(100);
-            results = PTKCombineLeftAndRightImages(dataset.GetTemplateImage(PTKContext.LungROI), fissureness_left, fissureness_right, left_and_right_lungs);
+            PTKfissureness = PTKCombineLeftAndRightImages(dataset.GetTemplateImage(PTKContext.LungROI), PTKfiltered_image_left, PTKfiltered_image_right, left_and_right_lungs);
+            MYfissureness = PTKCombineLeftAndRightImages(dataset.GetTemplateImage(PTKContext.LungROI), MYfiltered_image_left, MYfiltered_image_right, left_and_right_lungs);
+            Vx = PTKCombineLeftAndRightImages(dataset.GetTemplateImage(PTKContext.LungROI), Vx_left, Vx_right, left_and_right_lungs);
+            Vy = PTKCombineLeftAndRightImages(dataset.GetTemplateImage(PTKContext.LungROI), Vy_left, Vy_right, left_and_right_lungs);
+            Vz = PTKCombineLeftAndRightImages(dataset.GetTemplateImage(PTKContext.LungROI), Vz_left, Vz_right, left_and_right_lungs);
             
-            results.ImageType = PTKImageType.Scaled;
-        end        
+            PTKfissureness.ImageType = PTKImageType.Scaled;
+            MYfissureness.ImageType = PTKImageType.Scaled;
+            Vx.ImageType = PTKImageType.Scaled;
+            Vy.ImageType = PTKImageType.Scaled;
+            Vz.ImageType = PTKImageType.Scaled;
+
+            results = [];
+            results.PTKfissureness = PTKfissureness;
+            results.MYfissureness = MYfissureness;
+            results.Vx = Vx;
+            results.Vy = Vy;
+            results.Vz = Vz;
+        end
+        
+        function combined_image = GenerateImageFromResults(results, image_templates, ~)
+            combined_image = results.MYfissureness;
+            combined_image.ImageType = PTKImageType.Scaled;
+        end
     end
     
     methods (Static, Access = private)
         
         function lung = DuplicateImageInMask(lung, mask_raw)
             mask_raw = mask_raw > 0;
-            if any(mask_raw(:) > 0)
-                [~, labelmatrix] = bwdist(mask_raw);
-                lung(~mask_raw(:)) = lung(labelmatrix(~mask_raw(:)));
-            else
-                lung(:) = 0;
-            end
+            [~, labelmatrix] = bwdist(mask_raw);
+            lung(~mask_raw(:)) = lung(labelmatrix(~mask_raw(:)));
         end
         
-        function fissureness = ComputeFissureness(image_data, left_and_right_lungs, reporting, is_left_lung)
+        
+        function [PTKfiltered_image, MYfiltered_image,Vx,Vy,Vz] = ComputeFissureness(image_data, left_and_right_lungs, reporting, is_left_lung)
             
             left_and_right_lungs = left_and_right_lungs.Copy;
             left_and_right_lungs.ResizeToMatch(image_data);
             image_data.ChangeRawImage(PTKFissurenessHessianFactor.DuplicateImageInMask(image_data.RawImage, left_and_right_lungs.RawImage));
             
             mask = [];
-            fissureness = PTKImageDividerHessian(image_data, @PTKFissurenessHessianFactor.ComputeFissurenessPartImage, mask, 1.5, [], false, false, is_left_lung, reporting);
+            [PTKfiltered_image, MYfiltered_image, Vx_image,Vy_image,Vz_image] = MYImageDividerHessian(image_data, @PTKFissurenessHessianFactor.ComputeFissurenessPartImage, mask, 1, [], false, false, is_left_lung, reporting);
+            
+            for sigma = [1.5,2,2.5,3]
+            [ptk_filtered_image, my_filtered_image] = PTKImageDividerHessian(image_data, @PTKFissurenessHessianFactor.ComputeFissurenessPartImage, mask, sigma, [], false, false, is_left_lung, reporting);
+            PTKfiltered_image_raw = max(PTKfiltered_image.RawImage, ptk_filtered_image.RawImage);
+            PTKfiltered_image.ChangeRawImage(PTKfiltered_image_raw);
+            MYfiltered_image_raw = max(MYfiltered_image.RawImage, my_filtered_image.RawImage);
+            MYfiltered_image.ChangeRawImage(MYfiltered_image_raw);
+            end
+            
+            Vx=PTKfiltered_image.Copy;
+            Vx.ChangeRawImage(Vx_image);
+            Vy=PTKfiltered_image.Copy;
+            Vy.ChangeRawImage(Vy_image);
+            Vz=PTKfiltered_image.Copy;
+            Vz.ChangeRawImage(Vz_image);
         end
         
         function fissureness_wrapper = ComputeFissurenessPartImage(hessian_eigs_wrapper, voxel_size)

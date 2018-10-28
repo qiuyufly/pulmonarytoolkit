@@ -47,9 +47,9 @@ classdef PTKSaveAirwayCentreline < PTKPlugin
             % Get the results directory
             path_base = dataset.GetOutputPathAndCreateIfNecessary;
             file_path = fullfile(path_base, 'AirwayTree');
-            CoreDiskUtilities.CreateDirectoryIfNecessary(file_path);
+            PTKDiskUtilities.CreateDirectoryIfNecessary(file_path);
             
-            coordinate_system = MimCoordinateSystem.DicomUntranslated;
+            coordinate_system = PTKCoordinateSystem.DicomUntranslated;
             
             centreline_tree_filename_prefix = 'AirwayTree_Centreline';
             PTKSaveCentrelineTreeAsNodes(starting_segment, file_path, centreline_tree_filename_prefix, coordinate_system, template_image, reporting)

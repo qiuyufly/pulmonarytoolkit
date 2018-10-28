@@ -46,7 +46,7 @@ function threshold_image = PTKThresholdAirway(lung_image, use_wide_threshold)
                 limit_2 = lung_image.RescaledToGreyscale(-400);
             end
         end
-        
+%         
     else
         error('Unsupported modality');
     end

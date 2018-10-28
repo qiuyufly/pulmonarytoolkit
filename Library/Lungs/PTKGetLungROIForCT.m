@@ -7,8 +7,8 @@ function lung_image = PTKGetLungROIForCT(lung_image, reporting)
     %
     %     lung_image - the full original lung volume stored as a PTKImage.
     %
-    %     reporting  - an object implementing CoreReportingInterface
-    %                             for reporting progress and warnings
+    %     reporting (optional) - an object implementing the PTKReporting
+    %         interface for reporting progress and warnings
     %
     %
     %     Outputs
@@ -30,7 +30,7 @@ function lung_image = PTKGetLungROIForCT(lung_image, reporting)
     end
 
     if nargin < 2
-        reporting = CoreReportingDefault;
+        reporting = PTKReportingDefault;
     end
     
     reporting.ShowProgress('Rescaling image');
@@ -40,11 +40,11 @@ function lung_image = PTKGetLungROIForCT(lung_image, reporting)
     reduced_image.RescaleToMaxSize(128);
 
     reporting.ShowProgress('Filtering image');
-    reduced_image = MimGaussianFilter(reduced_image, 1.0, true); % ToDo
+    reduced_image = PTKGaussianFilter(reduced_image, 1.0);
     
     scale_factor = reduced_image.Scale;
     reporting.ShowProgress('Finding region of interest');
-    reduced_image = PTKSegmentLungsWithoutClosing(reduced_image, false, true, false, reporting);
+    reduced_image = PTKSegmentLungsWithoutClosing(reduced_image, false, true, reporting);
     
     % Use the crop function to find the offset and image size
     original_origin = reduced_image.Origin;

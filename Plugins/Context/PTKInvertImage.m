@@ -36,7 +36,7 @@ classdef PTKInvertImage < PTKPlugin
         function results = RunPlugin(dataset, reporting)
             if dataset.IsGasMRI
                 results = dataset.GetResult('PTKOriginalImage');
-                results = MimImageUtilities.InvertImage(results);
+                results = PTKImageUtilities.InvertImage(results);
             else
                 reporting.Error('PTKInvertImage:InvalidModality', 'This plugin is only for use with gas MRI images');
             end

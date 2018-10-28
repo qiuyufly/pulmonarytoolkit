@@ -38,14 +38,15 @@ classdef PTKSaveLobarAnalysisResults < PTKPlugin
         function results = RunPlugin(dataset, context, reporting)
             image_info = dataset.GetImageInfo;
             uid = image_info.ImageUid;
-            patient_name = dataset.GetPatientName;
+            template = dataset.GetTemplateImage(PTKContext.LungROI);
+            patient_name = template.MetaHeader.PatientName.FamilyName;
 
             contexts = {PTKContextSet.Lungs, PTKContextSet.SingleLung, PTKContextSet.Lobe};
             results = dataset.GetResult('PTKDensityAnalysis', contexts);
             
-            table = PTKConvertMetricsToTable(results, patient_name, uid, reporting);
+            table = PTKConvertMetricsToTable(results, patient_name, uid, PTKReportingDefault);
             
-            dataset.SaveTableAsCSV('PTKSaveLobarAnalysisResults', 'Lobar analysis', 'LobarResults', 'Analysis for lung and lobar regions', table, MimResultsTable.PatientDim, MimResultsTable.ContextDim, MimResultsTable.MetricDim, []);
+            dataset.SaveTableAsCSV('PTKSaveLobarAnalysisResults', 'Lobar analysis', 'LobarResults', 'Analysis for lung and lobar regions', table, PTKResultsTable.PatientDim, PTKResultsTable.ContextDim, PTKResultsTable.MetricDim, []);
         end
     end
 end

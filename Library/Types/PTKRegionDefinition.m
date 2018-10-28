@@ -1,5 +1,5 @@
 classdef PTKRegionDefinition
-    % PTKRegionDefinition. Class for storing information about a defined region within an image
+    % PTKCoords. Class for storing information about a defined region within an image
     %
     %     Licence
     %     -------

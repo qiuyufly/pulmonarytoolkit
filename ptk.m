@@ -15,18 +15,9 @@ clc
 % Add all necessary paths
 PTKAddPaths;
 
-% Update the repository
-updated = PTKUpdate;
-
-% We may need to add new paths as a result of an update
-if updated
-    clear all classes
-    PTKAddPaths force;
-end
-
 % Create the splash screen - do this early so the user knows something is
 % hapenning
-splash_screen = MimSplashScreen.GetSplashScreen(PTKAppDef);
+splash_screen = PTKSplashScreen.GetSplashScreen;
 splash_screen.ShowAndHold('Initialising');
 
 % Verify that an appropriate version of Matlab is being run

@@ -16,8 +16,8 @@ function output_image = PTKSmoothedRegionGrowingMatlab(threshold_image, start_po
     %                 begin from all these points simultaneously
     %             smoothing_size_mm - amoung of smoothing. A larger value will
     %                 give better results but will be slower
-    %             reporting - an object implementing CoreReportingInterface
-    %                             for reporting progress and warnings
+    %             reporting - a PTKReporting object for progress, warning and
+    %                 error reporting.
     %
     %         Outputs:
     %         -------
@@ -64,9 +64,9 @@ function output_image = PTKSmoothedRegionGrowingMatlab(threshold_image, start_po
     % This controls the size of the element used to find the nearest neighbours
     growing_size_mm = 3;    
     
-    average_el = uint16(CoreImageUtilities.CreateBallStructuralElement(threshold_image_cropped.VoxelSize, smoothing_size_mm));
+    average_el = uint16(PTKImageUtilities.CreateBallStructuralElement(threshold_image_cropped.VoxelSize, smoothing_size_mm));
 
-    nn_element = CoreImageUtilities.CreateBallStructuralElement(threshold_image_cropped.VoxelSize, growing_size_mm);
+    nn_element = PTKImageUtilities.CreateBallStructuralElement(threshold_image_cropped.VoxelSize, growing_size_mm);
     
     
     number_of_neighbouring_voxels = zeros([threshold_image_cropped.ImageSize, number_of_regions], 'double');

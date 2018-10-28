@@ -1,4 +1,4 @@
-classdef TestVoronoiDivision < CoreTest
+classdef TestVoronoiDivision < PTKTest
     % TestVoronoiDivision. Tests for the PTKVoronoiDivision class.
     %
     %
@@ -11,7 +11,7 @@ classdef TestVoronoiDivision < CoreTest
 
     methods
         function obj = TestVoronoiDivision
-            mock_reporting = CoreMockReporting;
+            mock_reporting = MockReporting;
             labels_1 = {[1, 5, 21, 25], [126, 130, 146 150]};
             expected_output_1 = zeros([5,5,6], 'uint8');
             expected_output_1(1:75) = 1;
@@ -37,23 +37,23 @@ classdef TestVoronoiDivision < CoreTest
         function CheckArguments(obj, labels, expected_output, reporting)
             
             % Test non-PTKImage input
-            reporting.AddExpectation('CoreMockReporting.Error', 'PTKVoronoiDivision:BadInput');
+            reporting.AddExpectation('MockReporting.Error', 'PTKVoronoiDivision:BadInput');
             try
                 label_matrix = PTKVoronoiDivision(zeros(5,5,5), labels, reporting);
             catch ex
-                if ~isa(ex, 'CoreTestException')
-                    CoreErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
+                if ~isa(ex, 'PTKTestException')
+                    PTKErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
                     
                 end
             end
             
             region_mask = PTKImage(zeros([5, 5, 6], 'uint8'));
-            reporting.AddExpectation('CoreMockReporting.Error', 'PTKVoronoiDivision:BadInput');
+            reporting.AddExpectation('MockReporting.Error', 'PTKVoronoiDivision:BadInput');
             try
                 label_matrix = PTKVoronoiDivision(region_mask, zeros(5,5,5), reporting);
             catch ex
-                if ~isa(ex, 'CoreTestException')
-                    CoreErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
+                if ~isa(ex, 'PTKTestException')
+                    PTKErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
                     
                 end
             end

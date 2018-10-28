@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PTK PTKVersion="0.5" XMLVersion="0.1">
+   <PTKSerialised Class="PTKLinkedDatasetRecorder" Name="LinkingCache">
+      <Property Class="containers.Map" Name="AssociatedDatasetsMap" Size="0  1"/>
+      <Property Class="containers.Map" Name="LinkMap" Size="0  1"/>
+   </PTKSerialised>
+</PTK><!--TD Pulmonary Toolkit. Automatically generated XML file. Code by Tom Doel 2014-->

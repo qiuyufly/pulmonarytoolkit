@@ -39,7 +39,6 @@ classdef PTKAirways < PTKPlugin
         ButtonWidth = 6
         ButtonHeight = 2
         GeneratePreview = true
-        Version = 2
     end
     
     methods (Static)
@@ -59,7 +58,7 @@ classdef PTKAirways < PTKPlugin
                 coronal_mode = true;
                 
             else
-                threshold = dataset.GetResult('PTKThresholdLungInterior');
+                threshold = dataset.GetResult('PTKThresholdLung');
                 coronal_mode = false;
             end            
             
@@ -76,7 +75,7 @@ classdef PTKAirways < PTKPlugin
                 maximum_number_of_generations = 15;
             end
             
-            explosion_multiplier = 4;
+            explosion_multiplier = 5;
 
             debug_mode = PTKSoftwareInfo.GraphicalDebugMode;
             results = PTKAirwayRegionGrowingWithExplosionControl(threshold, start_point, maximum_number_of_generations, explosion_multiplier, coronal_mode, reporting, debug_mode);

@@ -1,4 +1,4 @@
-function fissureness_wrapper = PTKComputeFissurenessFromHessianeigenvalues(hessian_eigs_wrapper, voxel_size)
+function results = PTKComputeFissurenessFromHessianeigenvalues(hessian_eigs_wrapper, voxel_size)
     % PTKComputeFissurenessFromHessianeigenvalues. Filter for detecting fissures.
     %
     %     PTKComputeFissurenessFromHessianeigenvalues computes a 
@@ -29,7 +29,8 @@ function fissureness_wrapper = PTKComputeFissurenessFromHessianeigenvalues(hessi
     %
 
     % lam1 = smallest eigenvalue, lam3 = largest eigenvalue
-    fissureness_wrapper = CoreWrapper;
+    PTKfissureness_wrapper = PTKWrapper;
+    MYfissureness_wrapper = PTKWrapper;
 
     % This allows us to compute the Fissureness in a vectorised or matrix-based way
     if ndims(hessian_eigs_wrapper.RawImage) == 2
@@ -56,5 +57,46 @@ function fissureness_wrapper = PTKComputeFissurenessFromHessianeigenvalues(hessi
     F_wall = exp((-abs(R_wall).^2)./(2*w^2));
 
     % Fissureness calculation
-    fissureness_wrapper.RawImage = 100*capital_gamma.*F_plane.*F_wall;
+    PTKfissureness_wrapper.RawImage = 100*capital_gamma.*F_plane.*F_wall;
+
+% Fstructure1=exp((-(lam3-50).^6)./(35.^6));
+%     Fstructure1=255-Fstructure1;
+%     Fstructure=Fstructure1.*(-lam3>=0);
+%     Fsheet=1*exp((-(lam2.^6))./25.^6);
+%     S_Fissure=Fstructure.*Fsheet;
+%     % eliminate small plate like structure
+%     
+%     %     S_Fissure=eliminate_smallplate(S_Fissure1,L3x,L3y,L3z);
+%     %     S_Fissure=(S_Fissure1<=0.1).*S_Fissure1;
+%     % keyboard
+%     F_Voxel_data=S_Fissure;
+%     
+%     %     if(options.BlackWhite)
+%     %         Voxel_data(Lambda2 < 0)=0; Voxel_data(Lambda3 < 0)=0;
+%     %     else
+%     %         Voxel_data(Lambda2 > 0)=0; Voxel_data(Lambda3 > 0)=0;
+%     %     end
+%     
+%     % Remove NaN values of fissure
+%     F_Voxel_data(~isfinite(F_Voxel_data))=0;
+%     
+%     fissureness_wrapper.RawImage=F_Voxel_data;
+    
+
+ %   The fissureness Features
+    Rsheet=abs(lam2)./abs(lam3);
+    Rnoise=sqrt(lam1.^2+lam2.^2+lam3.^2);
+    R1=exp((-Rsheet.^2)./(2.*0.5.^2));
+    R2=exp((-Rnoise.^2)./(2.*5.^2));
+    Fsheet=1.*exp((-Rsheet.^2)./(2.*0.5.^2)).*(1-exp((-Rnoise.^2)./(2.*5.^2)));
+    F_Voxel_data=Fsheet.*(-lam3>=0);
+    
+    % Remove NaN values of fissure
+    F_Voxel_data(~isfinite(F_Voxel_data))=0;
+    
+    MYfissureness_wrapper.RawImage = 100*F_Voxel_data;
+    
+    results = [];
+    results.PTKfissureness_wrapper = PTKfissureness_wrapper;
+    results.MYfissureness_wrapper = MYfissureness_wrapper;
 end

@@ -36,7 +36,11 @@ classdef MockDatasetDiskCache < handle
         
         % Stores a plugin result in the disk cache and updates cached dependency
         % information
-        function SavePluginResult(obj, plugin_name, result, cache_info, context, disk_cache_policy, memory_cache_policy, reporting)
+        function SavePluginResult(obj, plugin_name, result, cache_info, context, reporting)
+        end
+        
+        % Caches Dependency information
+        function CachePluginInfo(obj, plugin_name, cache_info, context, reporting)
         end
         
         % Saves additional data associated with this dataset to the cache

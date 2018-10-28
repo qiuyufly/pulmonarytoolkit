@@ -1,5 +1,5 @@
-classdef TestImageTemplates < CoreTest
-    % TestImageTemplates. Tests for the MimImageTemplates class.
+classdef TestImageTemplates < PTKTest
+    % TestImageTemplates. Tests for the PTKImageTemplates class.
     %
     %
     %     Licence
@@ -12,11 +12,10 @@ classdef TestImageTemplates < CoreTest
     methods
         function obj = TestImageTemplates
             
-            mock_reporting = CoreMockReporting;
+            mock_reporting = MockReporting;
             mock_datset_disk_cache = MockDatasetDiskCache;
             mock_dataset_results = MockDatasetResults;
-            context_def = PTKContextDef;
-            image_templates = MimImageTemplates(PTKFrameworkAppDef, mock_dataset_results, context_def, mock_datset_disk_cache, mock_reporting);
+            image_templates = PTKImageTemplates(mock_dataset_results, mock_datset_disk_cache, mock_reporting);
             mock_dataset_results.ImageTemplates = image_templates;
             null_dataset_stack = [];
             
@@ -40,12 +39,12 @@ classdef TestImageTemplates < CoreTest
             % When asking for a template, the code should fail if the template
             % could not be generated
             mock_dataset_results.AddMockResult('PTKOriginalImage', PTKContext.OriginalImage, [], [], [], true);
-            mock_reporting.AddExpectation('CoreMockReporting.Error', 'MimImageTemplates:NoContext');
+            mock_reporting.AddExpectation('MockReporting.Error', 'PTKImageTemplates:NoContext');
             try
                 template_image = image_templates.GetTemplateImage(PTKContext.OriginalImage, null_dataset_stack, mock_reporting);
             catch ex
-                if ~isa(ex, 'CoreTestException')
-                    CoreErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
+                if ~isa(ex, 'PTKTestException')
+                    PTKErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
                     
                 end
             end
@@ -67,22 +66,22 @@ classdef TestImageTemplates < CoreTest
             % leaving RightLung enabled)
             
             mock_dataset_results.AddMockResult('PTKLungROI', PTKContext.LungROI, [], [], [], true);
-            mock_reporting.AddExpectation('CoreMockReporting.Error', 'MimImageTemplates:NoContext');
+            mock_reporting.AddExpectation('MockReporting.Error', 'PTKImageTemplates:NoContext');
             try
                 template_image = image_templates.GetTemplateImage(PTKContext.LungROI, null_dataset_stack, mock_reporting);
             catch ex
-                if ~isa(ex, 'CoreTestException')
-                    CoreErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
+                if ~isa(ex, 'PTKTestException')
+                    PTKErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
                     
                 end
             end
             mock_dataset_results.AddMockResult('PTKGetContextForSingleLung', PTKContext.LeftLung, [], [], [], true);
-            mock_reporting.AddExpectation('CoreMockReporting.Error', 'MimImageTemplates:NoContext');
+            mock_reporting.AddExpectation('MockReporting.Error', 'PTKImageTemplates:NoContext');
             try
                 template_image = image_templates.GetTemplateImage(PTKContext.LeftLung, null_dataset_stack, mock_reporting);
             catch ex
-                if ~isa(ex, 'CoreTestException')
-                    CoreErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
+                if ~isa(ex, 'PTKTestException')
+                    PTKErrorUtilities.ThrowException('TestImageTemplates:WrongException', 'Test failure: test exception expected');
                     
                 end
             end
@@ -123,26 +122,16 @@ classdef TestImageTemplates < CoreTest
             mock_ll_image = PTKImage;
             mock_ll_image.Title = 'll';
             
-            lung_roi_cache_item = MimDatasetStackItem(MimDependency('PTKLungROI', PTKContext.LungROI, '1.2.3.4.5', '1', []), MimDependencyList, false, false, mock_reporting);
-            oi_cache_item = MimDatasetStackItem(MimDependency('PTKOriginalImage', PTKContext.OriginalImage, '1.2.3.4.6', '1', []), MimDependencyList, false, false, mock_reporting);
-            ll_cache_item = MimDatasetStackItem(MimDependency('PTKGetContextForSingleLung', PTKContext.LeftLung, '1.2.3.4.7', '1', []), MimDependencyList, false, false, mock_reporting);
-            rl_cache_item = MimDatasetStackItem(MimDependency('PTKGetContextForSingleLung', PTKContext.RightLung, '1.2.3.4.8', '1', []), MimDependencyList, false, false, mock_reporting);
-            rul_cache_item = MimDatasetStackItem(MimDependency('PTKGetContextForLobe', PTKContext.RightUpperLobe, '1.2.3.4.9', '1', []), MimDependencyList, false, false, mock_reporting);
-            rml_cache_item = MimDatasetStackItem(MimDependency('PTKGetContextForLobe', PTKContext.RightMiddleLobe, '1.2.3.4.10', '1', []), MimDependencyList, false, false, mock_reporting);
-            rll_cache_item = MimDatasetStackItem(MimDependency('PTKGetContextForLobe', PTKContext.RightLowerLobe, '1.2.3.4.11', '1', []), MimDependencyList, false, false, mock_reporting);
-            lul_cache_item = MimDatasetStackItem(MimDependency('PTKGetContextForLobe', PTKContext.LeftUpperLobe, '1.2.3.4.12', '1', []), MimDependencyList, false, false, mock_reporting);
-            lll_cache_item = MimDatasetStackItem(MimDependency('PTKGetContextForLobe', PTKContext.LeftLowerLobe, '1.2.3.4.13', '1', []), MimDependencyList, false, false, mock_reporting);
-            
             % Check fetching the template images
-            mock_dataset_results.AddMockResult('PTKLungROI', PTKContext.LungROI, mock_roi_image, lung_roi_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKOriginalImage', PTKContext.OriginalImage, mock_full_image, oi_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKGetContextForSingleLung', PTKContext.LeftLung, mock_left_image, ll_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKGetContextForSingleLung', PTKContext.RightLung, mock_right_image, rl_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.RightUpperLobe, mock_ru_image, rul_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.RightMiddleLobe, mock_rm_image, rml_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.RightLowerLobe, mock_rl_image, rll_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.LeftUpperLobe, mock_lu_image, lul_cache_item, [], true);
-            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.LeftLowerLobe, mock_ll_image, lll_cache_item, [], true);
+            mock_dataset_results.AddMockResult('PTKLungROI', PTKContext.LungROI, mock_roi_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKOriginalImage', PTKContext.OriginalImage, mock_full_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKGetContextForSingleLung', PTKContext.LeftLung, mock_left_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKGetContextForSingleLung', PTKContext.RightLung, mock_right_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.RightUpperLobe, mock_ru_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.RightMiddleLobe, mock_rm_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.RightLowerLobe, mock_rl_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.LeftUpperLobe, mock_lu_image, [], [], true);
+            mock_dataset_results.AddMockResult('PTKGetContextForLobe', PTKContext.LeftLowerLobe, mock_ll_image, [], [], true);
 
             roi_template_image = image_templates.GetTemplateImage(PTKContext.LungROI, null_dataset_stack, mock_reporting);
             obj.Assert(strcmp(roi_template_image.Title, 'roi'), 'Correct template image returned');

@@ -1,10 +1,10 @@
-function lung_image = PTKSegmentLungsWithoutClosing(original_image, filter_image, use_wide_threshold, include_interior_regions, reporting)
+function lung_image = PTKSegmentLungsWithoutClosing(original_image, filter_image, use_wide_threshold, reporting)
     % PTKSegmentLungsWithoutClosing. Extracts a region comprising the lung and
     % airways from a CT region of interest image.
     %
     %
     %     Syntax:
-    %         lung_image = PTKSegmentLungsWithoutClosing(original_image, filter_image, use_wide_threshold, include_interior_regions, reporting)
+    %         lung_image = PTKSegmentLungsWithoutClosing(original_image, filter_image, use_wide_threshold, reporting)
     %
     %         Inputs:
     %         ------
@@ -18,14 +18,8 @@ function lung_image = PTKSegmentLungsWithoutClosing(original_image, filter_image
     %                 This is better at segmenting the lungs for noisy/diseased
     %                 images where voxels take on a wider range of values, but
     %                 may segment airway walls.
-    %             include_interior_regions - if true, the segmentation will include
-    %                 interior disconnected regions within the ROI even though they
-    %                 might not be part of the lungs and airways. Generally this
-    %                 might be set to true when finding a mask for airway
-    %                 segmentation, but set to false when finding a mask for lung
-    %                 segmentation
-    %             reporting - an object implementing CoreReportingInterface
-    %                             for reporting progress and warnings
+    %             reporting - a PTKReporting object for progress, warning and
+    %                 error reporting.
     %
     %         Outputs:
     %         -------
@@ -55,7 +49,7 @@ function lung_image = PTKSegmentLungsWithoutClosing(original_image, filter_image
     % Filter image to reduce noise
     if filter_image
         filter_size = 0.5;
-        filtered_lung_image = MimGaussianFilter(original_image, filter_size);
+        filtered_lung_image = PTKGaussianFilter(original_image, filter_size);
     else
         filtered_lung_image = original_image.Copy;
     end
@@ -69,47 +63,7 @@ function lung_image = PTKSegmentLungsWithoutClosing(original_image, filter_image
     if ~isempty(reporting)
         reporting.ShowProgress('Searching for largest connected region');
     end
-
-    
-    min_volume_warning_limit = 2000;
-
-    % In the event that the central component was not found, we will
-    % perform additional opening
-    open_params = [2, 4, 6];
-    open_index = 1;
-    
-    if include_interior_regions
-        minimum_region_volume_mm3 = 0;
-    else
-        minimum_region_volume_mm3 = 1000000;
-    end
     
     % Find the main component, excluding any components touching the border
-    lung_image = PTKGetMainRegionExcludingPaddingBorder(original_image, filtered_lung_image, minimum_region_volume_mm3, include_interior_regions, reporting);
-    lung_volume = lung_image.Volume;
-    still_searching = lung_volume < min_volume_warning_limit;
-    
-    while still_searching
-        open_value = open_params(open_index);
-        filtered_lung_image_copy = filtered_lung_image.Copy;
-        filtered_lung_image_copy.BinaryMorph(@imerode, open_value);
-        adjusted_lung_image = PTKGetMainRegionExcludingPaddingBorder(original_image, filtered_lung_image_copy, minimum_region_volume_mm3, include_interior_regions, reporting);
-        
-        lung_volume = adjusted_lung_image.Volume;
-        
-        if lung_volume < min_volume_warning_limit
-            open_index = open_index + 1;
-            if open_index > length(open_params)
-                still_searching = false;
-            end
-        else
-            lung_image = adjusted_lung_image;
-            still_searching = false;
-        end
-    end
-    
-    if lung_volume < min_volume_warning_limit
-        reporting.ShowWarning('PTKSegmentLungsWithoutClosing:LungVolumeSmall', ['The calculated lung volume ' num2str(lung_volume) 'mm^3 is small. This may indicate pathology or a segmentation error. Please manually verify the lung segmentation.'], [])
-    end
-    
+    lung_image = PTKGetMainRegionExcludingBorder(filtered_lung_image, reporting);
 end

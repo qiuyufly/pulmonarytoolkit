@@ -46,11 +46,9 @@ classdef PTKAirwaysLabelledByLobe < PTKPlugin
         ButtonHeight = 2
         GeneratePreview = true
         Visibility = 'Developer'
-        Version = 2
         
-        EnableModes = MimModes.EditMode
-        SubMode = MimSubModes.ColourRemapEditing        
-        EditRequiresPluginResult = true
+        EnableModes = PTKModes.EditMode
+        SubMode = PTKSubModes.ColourRemapEditing        
     end
     
     methods (Static)
@@ -64,8 +62,10 @@ classdef PTKAirwaysLabelledByLobe < PTKPlugin
 
             % Find the airways for each lobe
             start_branches = PTKGetAirwaysLabelledByLobe(results_image, labelled_centreline, reporting);
+            
+            number_of_brances = numel(airway_mapped_image.ColourLabelChildMap)+1;
 
-            airway_mapping = PTKAirwaysLabelledByLobe.GetAirwayMappingForLobes(start_branches);
+            airway_mapping = PTKAirwaysLabelledByLobe.GetAirwayMappingForLobes(start_branches , number_of_brances);
             airway_mapped_image.ChangeColorLabelMap(airway_mapping);
 
             results = [];
@@ -84,7 +84,7 @@ classdef PTKAirwaysLabelledByLobe < PTKPlugin
             left_uncertain = [];
             
             % Generate the mapping for the lobes
-            bronchi_to_do = CoreStack(tree_root);
+            bronchi_to_do = PTKStack(tree_root);
             while ~bronchi_to_do.IsEmpty
                 next_bronchus = bronchi_to_do.Pop;
                 bronchus_label = next_bronchus.BronchusIndex;
@@ -126,28 +126,22 @@ classdef PTKAirwaysLabelledByLobe < PTKPlugin
             start_branches.LeftUncertain = left_uncertain;
         end
             
-        function airway_mapping = GetAirwayMappingForLobes(start_branches)
+        function airway_mapping = GetAirwayMappingForLobes(start_branches , number_of_branches)
             
-            airway_mapping = [];
-            
-            % Map the whole tree initially to 0 to take into account any
-            % parent parenches of the lobar bronchi
-            airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.Trachea, 0);
-
             % Map the labels to the lobar colours
+            airway_mapping = zeros(1,number_of_branches);
             airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.LeftUpper, PTKColormapLabels.LeftUpperLobe);
             airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.LeftLower, PTKColormapLabels.LeftLowerLobe);
             airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.RightUpper, PTKColormapLabels.RightUpperLobe);
             airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.RightLower, PTKColormapLabels.RightLowerLobe);
             airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.RightMid, PTKColormapLabels.RightMiddleLobe);
             airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.LeftUncertain, 3);
-            airway_mapping = PTKAirwaysLabelledByLobe.MapTheseBranchesToLabel(airway_mapping, start_branches.RightUncertain, 3);
             airway_mapping(airway_mapping == 0) = 7;
             airway_mapping(1) = 0;
         end
         
         function airway_mapping = MapTheseBranchesToLabel(airway_mapping, branch_list, label)
-            branches_to_label = CoreStack(branch_list);
+            branches_to_label = PTKStack(branch_list);
             while ~branches_to_label.IsEmpty
                 branch = branches_to_label.Pop;
                 airway_mapping(branch.BronchusIndex + 1) = label;

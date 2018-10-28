@@ -34,13 +34,12 @@ function [BNEW,U,EXITFLAG,OUTPUT] = npReg(A,B,options,varargin)
 %   OUTPUT.fixedPointIterations, and the exit message in OUTPUT.message.
 %
 % author: Nathan D. Cahill
-% email: nathan.cahill@rit.edu
 % affiliation: Rochester Institute of Technology
 % date: January 2014
 % licence: GNU GPL v3 licence.
 %
-% Copyright Nathan D. Cahill
-% Code available from https://github.com/tomdoel/npReg
+% This code is copyright Nathan D. Cahill and has been distributed as part of the
+% Pulmonary Toolkit. https://github.com/tomdoel/pulmonarytoolkit
 
 % ------------Initialization----------------
 

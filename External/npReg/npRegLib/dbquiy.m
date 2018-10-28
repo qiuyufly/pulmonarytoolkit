@@ -5,13 +5,12 @@ function UNew = diffusionDirichlet2D(varargin);
 %
 %
 % author: Nathan D. Cahill
-% email: nathan.cahill@rit.edu
 % affiliation: Rochester Institute of Technology
 % date: January 2014
 % licence: GNU GPL v3
 %
-% Copyright Nathan D. Cahill
-% Code available from https://github.com/tomdoel/npReg
+% This code is copyright Nathan D. Cahill and has been distributed as part of the
+% Pulmonary Toolkit. https://github.com/tomdoel/pulmonarytoolkit
 %
 %
 

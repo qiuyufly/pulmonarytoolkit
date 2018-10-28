@@ -69,8 +69,13 @@ classdef PTKLobesFromFissurePlaneOblique < PTKPlugin
             fissure_plane = find(fissure_plane.RawImage(:) == 4);
             
             left_results = PTKDivideVolumeUsingScatteredPoints(lung_mask, fissure_plane, 5, reporting);
+            
+            if ~isempty(left_results)
             left_results.ChangeColourIndex(1, 5);
-            left_results.ChangeColourIndex(2, 6);  
+            left_results.ChangeColourIndex(2, 6);
+            else 
+                left_resuts =  [];
+            end
         end
         
         function results_right = GetRightLungResults(lung_template, lung_mask, fissure_plane, reporting)
@@ -81,7 +86,12 @@ classdef PTKLobesFromFissurePlaneOblique < PTKPlugin
             fissure_plane_o = find(fissure_plane.RawImage(:) == 3);
             
             results_right = PTKDivideVolumeUsingScatteredPoints(lung_mask, fissure_plane_o, 5, reporting);
-            results_right.ChangeColourIndex(2, 4);            
+            
+            if ~isempty(results_right)
+            results_right.ChangeColourIndex(2, 4);
+            else
+                results_right = [];
+            end
         end
     end
 end

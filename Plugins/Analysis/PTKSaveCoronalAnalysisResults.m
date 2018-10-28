@@ -45,14 +45,15 @@ classdef PTKSaveCoronalAnalysisResults < PTKPlugin
             contexts = {PTKContextSet.Lungs, PTKContextSet.SingleLung, PTKContextSet.Lobe};
             results = dataset.GetResult('PTKCoronalAnalysis', contexts);            
             
-            % Convert the results into a MimResultsTable
+            % Convert the results into a PTKResultsTable
             image_info = dataset.GetImageInfo;
             uid = image_info.ImageUid;
-            patient_name = dataset.GetPatientName;
+            template = dataset.GetTemplateImage(PTKContext.LungROI);
+            patient_name = [template.MetaHeader.PatientName.FamilyName '-'  template.MetaHeader.PatientID];
             table = PTKConvertMetricsToTable(results, patient_name, uid, reporting);
 
             % Save the results table as a series of CSV files
-            dataset.SaveTableAsCSV('PTKSaveCoronalAnalysisResults', 'Coronal analysis', 'CoronalResults', 'Density analysis in bins along the anterior-posterior axis', table, MimResultsTable.ContextDim, MimResultsTable.SliceNumberDim, MimResultsTable.MetricDim, []);
+            dataset.SaveTableAsCSV('PTKSaveCoronalAnalysisResults', 'Coronal analysis', 'CoronalResults', 'Density analysis in bins along the anterior-posterior axis', table, PTKResultsTable.ContextDim, PTKResultsTable.SliceNumberDim, PTKResultsTable.MetricDim, []);
             
             % Generate graphs of the results
             y_label = 'Distance along coronal axis (%)';

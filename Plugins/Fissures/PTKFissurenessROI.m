@@ -33,7 +33,7 @@ classdef PTKFissurenessROI < PTKPlugin
         AllowResultsToBeCached = true
         AlwaysRunPlugin = false
         PluginType = 'ReplaceOverlay'
-        HidePluginInDisplay = false
+        HidePluginInDisplay = true
         FlattenPreviewImage = true
         PTKVersion = '1'
         ButtonWidth = 6

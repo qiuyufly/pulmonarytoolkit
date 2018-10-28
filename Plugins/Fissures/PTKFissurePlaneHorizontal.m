@@ -65,9 +65,9 @@ classdef PTKFissurePlaneHorizontal < PTKPlugin
             
             max_fissure_points_m = find(max_fissure_points.RawImage(:) == 8);
             
-            if isempty(max_fissure_points_m)
-                reporting.ShowWarning('PTKFissurePlane:NoRightHoritontalFissure', 'Unable to find the right horizontal fissure', []);
-            end
+%             if isempty(max_fissure_points_m)
+%                 reporting.ShowWarning('PTKFissurePlane:NoRightHoritontalFissure', 'Unable to find the right horizontal fissure', []);
+%             end
             
             if ~isempty(max_fissure_points_m)
                 [~, fissure_plane] = PTKSeparateIntoLobesWithVariableExtrapolation(max_fissure_points_m, lung_mask, right_lung_roi.ImageSize, 20, reporting);

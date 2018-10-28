@@ -22,7 +22,6 @@ classdef PTKLobes < PTKPlugin
         Category = 'Lobes'
         
         AllowResultsToBeCached = true
-        SuggestManualEditOnFailure = true
         AlwaysRunPlugin = false
         PluginType = 'ReplaceOverlay'
         HidePluginInDisplay = false
@@ -32,45 +31,20 @@ classdef PTKLobes < PTKPlugin
         ButtonHeight = 2
         GeneratePreview = true
         
-        EnableModes = MimModes.EditMode
-        SubMode = MimSubModes.FixedBoundariesEditing
-
-        MemoryCachePolicy = 'Temporary'
-        DiskCachePolicy = 'Permanent'
+        EnableModes = PTKModes.EditMode
+        SubMode = PTKSubModes.FixedBoundariesEditing
     end
     
     methods (Static)
-        function results = RunPlugin(dataset, reporting)
+        function results = RunPlugin(dataset, reporting) 
+            
             if dataset.IsGasMRI
                 results = dataset.GetResult('PTKLobeMapForGasMRI');
             elseif strcmp(dataset.GetImageInfo.Modality, 'MR')
-                reporting.Error('PTKLobes:MRLobesNotImplemented', 'Lobe segmentation for MR is not currently supported.');
-%                 results = dataset.GetResult('PTKLobeMapForMRI'); % ToDo: not yet implemented for MRI
+                results = dataset.GetResult('PTKLobeMapForMRI'); % ToDo: not yet implemented for MRI
             else
                 results = dataset.GetResult('PTKLobesFromFissurePlane');
             end
         end
-        
-        function result = GenerateDefaultEditedResultFollowingFailure(dataset, context, reporting)
-            % Our initial edited result is based on the lungs, with lobe
-            % details added in if they exist
-            try
-                result = dataset.GetResult('PTKLeftAndRightLungs');
-                result_raw = result.RawImage;
-                result_raw(result_raw == 2) = 5;
-            catch 
-                result = [];
-                return;
-            end
-            
-            try
-                result_initial_lobes = dataset.GetResult('PTKLobesByVesselnessDensityUsingWatershed');
-                result_initial_lobes_raw = result_initial_lobes.RawImage;
-                result_raw(result_initial_lobes_raw > 0) = result_initial_lobes_raw(result_initial_lobes_raw > 0);
-            catch
-            end
-            
-            result.ChangeRawImage(result_raw);
-        end        
     end
 end

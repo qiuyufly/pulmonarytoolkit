@@ -24,7 +24,7 @@ classdef PTKVesselDensity < PTKPlugin
         ButtonText = 'Vessel Density'
         ToolTip = 'Approximates a vessel density by Gaussian filtering the multiscale vesselness filter'
         Category = 'Vessels'
-        AllowResultsToBeCached = false
+        AllowResultsToBeCached = true
         AlwaysRunPlugin = false
         PluginType = 'ReplaceOverlay'
         HidePluginInDisplay = false
@@ -34,9 +34,6 @@ classdef PTKVesselDensity < PTKPlugin
         ButtonHeight = 2
         GeneratePreview = true
         Visibility = 'Developer'
-
-        MemoryCachePolicy = 'Temporary'
-        DiskCachePolicy = 'Off'        
     end
     
     methods (Static)
@@ -62,7 +59,7 @@ classdef PTKVesselDensity < PTKPlugin
             vesselness_raw = single(vesselness.RawImage);
             filter_size = 10;            
             vesselness.ChangeRawImage(vesselness_raw);
-            filtered_vesselness = MimGaussianFilter(vesselness, filter_size);
+            filtered_vesselness = PTKGaussianFilter(vesselness, filter_size);
         end
     end
 end

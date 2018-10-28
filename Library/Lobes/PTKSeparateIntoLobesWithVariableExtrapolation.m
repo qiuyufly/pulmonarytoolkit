@@ -33,11 +33,18 @@ function [lobes_raw, fissure_plane] = PTKSeparateIntoLobesWithVariableExtrapolat
         if isempty(lobes_raw)
             extrapolation = extrapolation + 2;
             if extrapolation > max_extrapolation
-                reporting.Error('PTKFissurePlane:UnableToDivide', 'Could not separate the lobes');
+                lobes_raw = [];
+                compute_again = false;
+                continue
+%                 reporting.Error('PTKFissurePlane:UnableToDivide', 'Could not separate the lobes');
             end
             compute_again = true;
         else
             compute_again = false;
         end
+    end
+    
+    if isempty(lobes_raw)
+        fissure_plane = [];
     end
 end

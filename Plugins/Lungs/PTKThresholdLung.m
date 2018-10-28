@@ -34,8 +34,8 @@ classdef PTKThresholdLung < PTKPlugin
         GeneratePreview = true
         Visibility = 'Developer'
         
-        EnableModes = MimModes.EditMode
-        SubMode = MimSubModes.PaintEditing
+        EnableModes = PTKModes.EditMode
+        SubMode = PTKSubModes.PaintEditing
     end
     
     methods (Static)

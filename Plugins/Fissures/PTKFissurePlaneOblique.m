@@ -1,7 +1,7 @@
 classdef PTKFissurePlaneOblique < PTKPlugin
     % PTKFissurePlaneOblique. Plugin to obtain an approximation of the fissures
     %
-    %     This is a plugin for the Pulmonary Toolkit. Plugins can be run using 
+    %     This is a plugin for the Pulmonary Toolkit. Plugins can be run using
     %     the gui, or through the interfaces provided by the Pulmonary Toolkit.
     %     See PTKPlugin.m for more information on how to run plugins.
     %
@@ -19,12 +19,12 @@ classdef PTKFissurePlaneOblique < PTKPlugin
     %     Author: Tom Doel, 2012.  www.tomdoel.com
     %     Distributed under the GNU GPL v3 licence. Please see website for details.
     %
-
+    
     properties
         ButtonText = 'Fissure Plane<br>Oblique'
         ToolTip = ''
         Category = 'Fissures'
-
+        
         AllowResultsToBeCached = true
         AlwaysRunPlugin = false
         PluginType = 'ReplaceOverlay'
@@ -52,7 +52,7 @@ classdef PTKFissurePlaneOblique < PTKPlugin
         
         function results = GenerateImageFromResults(results, ~, ~)
         end
-    end    
+    end
     
     methods (Static, Access = private)
         
@@ -65,15 +65,20 @@ classdef PTKFissurePlaneOblique < PTKPlugin
             
             max_fissure_points.ResizeToMatch(lung_roi);
             max_fissure_points = find(max_fissure_points.RawImage(:) == 1);
-
+            
             if isempty(max_fissure_points)
-                reporting.Error('PTKFissurePlane:NoLeftObliqueFissure', 'Unable to find the left oblique fissure');
+                fissure_plane = [];
+            else
+                [~, fissure_plane] = PTKSeparateIntoLobesWithVariableExtrapolation(max_fissure_points, lung_mask, lung_roi.ImageSize, 5, reporting);
             end
             
             [~, fissure_plane] = PTKSeparateIntoLobesWithVariableExtrapolation(max_fissure_points, lung_mask, lung_roi.ImageSize, 5, reporting);
-                        
+            
             results = lung_roi.BlankCopy;
+            
+            if ~isempty(fissure_plane)
             results.ChangeRawImage(4*uint8(fissure_plane == 3));
+            end
         end
         
         function results = GetRightLungResults(max_fissure_points, lung_roi, left_and_right_lungs, reporting)
@@ -85,15 +90,18 @@ classdef PTKFissurePlaneOblique < PTKPlugin
             
             max_fissure_points.ResizeToMatch(lung_roi);
             max_fissure_points = find(max_fissure_points.RawImage(:) == 1);
-            
+
             if isempty(max_fissure_points)
-                reporting.Error('PTKFissurePlane:NoRightObliqueFissure', 'Unable to find the right oblique fissure');
+                fissure_plane = [];
+            else
+                [~, fissure_plane] = PTKSeparateIntoLobesWithVariableExtrapolation(max_fissure_points, lung_mask, lung_roi.ImageSize, 5, reporting);
             end
             
-            [~, fissure_plane] = PTKSeparateIntoLobesWithVariableExtrapolation(max_fissure_points, lung_mask, lung_roi.ImageSize, 5, reporting);
-            
             results = lung_roi.BlankCopy;
+            
+            if ~isempty(fissure_plane)
             results.ChangeRawImage(fissure_plane);
+            end
         end
         
     end

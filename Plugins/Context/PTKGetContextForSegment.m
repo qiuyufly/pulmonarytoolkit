@@ -30,9 +30,6 @@ classdef PTKGetContextForSegment < PTKPlugin
         ButtonWidth = 6
         ButtonHeight = 2
         GeneratePreview = true
-
-        MemoryCachePolicy = 'Permanent'
-        DiskCachePolicy = 'Permanent'
     end
     
     methods (Static)

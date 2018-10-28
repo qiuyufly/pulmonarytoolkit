@@ -37,14 +37,15 @@ classdef PTKSaveVentilationAnalysisResults < PTKPlugin
         function results = RunPlugin(dataset, context, reporting)
             image_info = dataset.GetImageInfo;
             uid = image_info.ImageUid;
-            patient_name = dataset.GetPatientName;
+            template = dataset.GetTemplateImage(PTKContext.LungROI);
+            patient_name = template.MetaHeader.PatientName.FamilyName;
 
             contexts = {PTKContextSet.Lungs, PTKContextSet.SingleLung, PTKContextSet.Lobe};
             results = dataset.GetResult('PTKVentilationAnalysis', contexts);
             
-            table = PTKConvertMetricsToTable(results, patient_name, uid, reporting);
+            table = PTKConvertMetricsToTable(results, patient_name, uid, PTKReportingDefault);
             
-            dataset.SaveTableAsCSV('PTKSaveVentilationAnalysisResults', 'Ventilation analysis', 'VentilationResults', 'Ventilated volume', table, MimResultsTable.PatientDim, MimResultsTable.ContextDim, MimResultsTable.MetricDim, []);
+            dataset.SaveTableAsCSV('PTKSaveVentilationAnalysisResults', 'Ventilation analysis', 'VentilationResults', 'Ventilated volume', table, PTKResultsTable.PatientDim, PTKResultsTable.ContextDim, PTKResultsTable.MetricDim, []);
         end
     end
 end

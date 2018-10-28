@@ -31,7 +31,7 @@ function results = PTKAirwayRegionGrowingWithExplosionControl(threshold_image, s
     %     coronal_mode - if true, the algorithm performs in a special mode
     %         designed for images with thick coronal slices
     %
-    %     reporting - an object implementing the CoreReportingInterface
+    %     reporting - an object implementing the PTKReporting
     %         interface for reporting progress and warnings
     %
     %     debug_mode (optional) - should normally be set to false. 
@@ -128,18 +128,16 @@ function first_segment = RegionGrowing(threshold_image_handle, start_point_globa
     
     number_of_image_points_local = numel(threshold_image(:));
 
-    [linear_offsets_global, ~] = MimImageCoordinateUtilities.GetLinearOffsets(image_size_global);
+    [linear_offsets_global, ~] = PTKImageCoordinateUtilities.GetLinearOffsets(image_size_global);
 
     
     % For Coronal mode compute the linear offsets
     if coronal_mode
         dirs_coronal = [5, 23, 11, 17];
-        linear_offsets_global_jk = MimImageCoordinateUtilities.GetLinearOffsetsForDirections(dirs_coronal, image_size_global);
+        linear_offsets_global_jk = PTKImageCoordinateUtilities.GetLinearOffsetsForDirections(dirs_coronal, image_size_global);
         linear_offsets_neighbours = linear_offsets_global_jk;
     else
-        dirs_18 = [2, 4, 5, 6, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 22, 23, 24, 26];
-        linear_offsets_global_18 = MimImageCoordinateUtilities.GetLinearOffsetsForDirections(dirs_18, image_size_global);
-        linear_offsets_neighbours = linear_offsets_global_18;        
+        linear_offsets_neighbours = linear_offsets_global;        
     end
 
     first_segment = PTKWavefront([], min_distance_before_bifurcating_mm, voxel_size_mm, maximum_number_of_generations, explosion_multiplier);

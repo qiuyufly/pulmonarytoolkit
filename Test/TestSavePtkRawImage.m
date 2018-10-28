@@ -1,4 +1,4 @@
-classdef TestSavePtkRawImage < CoreTest
+classdef TestSavePtkRawImage < PTKTest
     % TestSavePtkRawImage. Tests for the TestSavePtkRawImage and TestLoadPtkRawImage class.
     %
     %
@@ -11,7 +11,7 @@ classdef TestSavePtkRawImage < CoreTest
 
     methods
         function obj = TestSavePtkRawImage
-            reporting = CoreReportingDefault;
+            reporting = PTKReportingDefault;
             obj.TestSaveLoad('uint8', reporting);
             obj.TestSaveLoad('int8', reporting);
             obj.TestSaveLoad('uint16', reporting);
@@ -29,7 +29,7 @@ classdef TestSavePtkRawImage < CoreTest
             for index = 1 : 20
                 image_size = round(2 + 100*rand([1, 3]));
                 ptk_temp_dir = fullfile(tempdir, 'ptk_test');
-                CoreDiskUtilities.CreateDirectoryIfNecessary(ptk_temp_dir);
+                PTKDiskUtilities.CreateDirectoryIfNecessary(ptk_temp_dir);
                 raw_image = rand(image_size);
                 
                 switch data_type
@@ -65,8 +65,8 @@ classdef TestSavePtkRawImage < CoreTest
         end
         
         function TestSaveLoadForCompression(obj, raw_image, ptk_temp_dir, raw_file_name, compression, reporting)
-            CoreSaveRawImage(raw_image, ptk_temp_dir, raw_file_name, compression, reporting);
-            raw_image_loaded = CoreLoadRawImage(ptk_temp_dir, raw_file_name, class(raw_image), size(raw_image), compression, reporting);
+            PTKSavePtkRawImage(raw_image, ptk_temp_dir, raw_file_name, compression, reporting);
+            raw_image_loaded = PTKLoadPtkRawImage(ptk_temp_dir, raw_file_name, class(raw_image), size(raw_image), compression, reporting);
             obj.Assert(isequal(raw_image, raw_image_loaded), 'Images are identical');
         end
     end    

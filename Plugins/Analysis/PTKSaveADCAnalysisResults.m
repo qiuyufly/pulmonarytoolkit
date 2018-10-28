@@ -38,14 +38,14 @@ classdef PTKSaveADCAnalysisResults < PTKPlugin
             image_info = dataset.GetImageInfo;
             uid = image_info.ImageUid;
             template = dataset.GetTemplateImage(PTKContext.LungROI);
-            patient_name = dataset.GetPatientName;
+            patient_name = template.MetaHeader.PatientName.FamilyName;
 
             contexts = {PTKContextSet.Lungs, PTKContextSet.SingleLung, PTKContextSet.Lobe};
             results = dataset.GetResult('PTKADCAnalysis', contexts);
             
-            table = PTKConvertMetricsToTable(results, patient_name, uid, reporting);
+            table = PTKConvertMetricsToTable(results, patient_name, uid, PTKReportingDefault);
             
-            dataset.SaveTableAsCSV('PTKSaveADCAnalysisResults', 'ADC analysis', 'ADCResults', 'Mean ADC', table, MimResultsTable.PatientDim, MimResultsTable.ContextDim, MimResultsTable.MetricDim, []);
+            dataset.SaveTableAsCSV('PTKSaveADCAnalysisResults', 'ADC analysis', 'ÅDCResults', 'Mean ADC', table, PTKResultsTable.PatientDim, PTKResultsTable.ContextDim, PTKResultsTable.MetricDim, []);
         end
     end
 end

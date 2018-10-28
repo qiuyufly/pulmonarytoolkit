@@ -10,8 +10,8 @@ function [new_image, bounds] = PTKComputeSegmentLungsMRI(original_image, filter_
     %         ------
     %             original_image - The MRI image from which to segment the lungs
     %             filter_size_mm - The standard deviation of the filter to apply
-    %             reporting      - an object implementing CoreReportingInterface
-    %                              for reporting progress and warnings
+    %             reporting - a PTKReporting object for progress, warning and
+    %                 error reporting.
     %             start_point_right - optionally specify a starting point
     %
     %         Outputs:
@@ -38,7 +38,7 @@ function [new_image, bounds] = PTKComputeSegmentLungsMRI(original_image, filter_
     min_image = original_image.Limits(1);
     filtered_image = original_image.BlankCopy;
     filtered_image.ChangeRawImage(original_image.RawImage - min_image);
-    filtered_image = MimGaussianFilter(filtered_image, filter_size_mm);
+    filtered_image = PTKGaussianFilter(filtered_image, filter_size_mm);
     
     if (nargin < 4)
         reporting.UpdateProgressMessage('Automatically selecting a point in the lung parenchyma');
@@ -66,11 +66,11 @@ function [new_image, bounds] = PTKComputeSegmentLungsMRI(original_image, filter_
     
     if coronal_mode
         new_image.AddBorder(1);
-        new_image = PTKGetMainRegionExcludingBorder(new_image, 1000000, reporting);
+        new_image = PTKGetMainRegionExcludingBorder(new_image, reporting);
         new_image.RemoveBorder(1);
         
     else
-        new_image = PTKGetMainRegionExcludingBorder(new_image, 1000000, reporting);
+        new_image = PTKGetMainRegionExcludingBorder(new_image, reporting);
     end
 
     bounds = [0, 0];
@@ -145,7 +145,7 @@ function [new_image, bounds] = FindMaximumRegionNotTouchingSides(lung_image, loc
         end
         bounds = bounds_middle_slice;
     else
-        [new_image, bounds] = GetVariableThreshold(lung_image, min_value, max_value, {local_start_point}, coronal_mode, reporting);
+        [new_image, bounds] = GetVariableThreshold(lung_image, min_value, max_value, local_start_point, coronal_mode, reporting);
     end
     
     if coronal_mode
@@ -202,13 +202,14 @@ function next_points = GetNextSetOfStartPoints(new_image_slice)
     end
 end
 
-function [new_image, bounds] = GetVariableThreshold(lung_image, min_value, max_value, start_points, coronal_mode, reporting)
+function [new_image, bounds] = GetVariableThreshold(lung_image, min_value, max_value, start_point, coronal_mode, reporting)
     new_image = zeros(lung_image.ImageSize, 'int16');
     next_image = new_image;
     
     increments = [50 10 1];
     
-    start_points_global = lung_image.LocalToGlobalCoordinates(cell2mat(start_points'));
+    start_point_matrix = cell2mat(start_point');
+    start_points_global = lung_image.LocalToGlobalCoordinates(start_point_matrix);
     start_points_global = num2cell(start_points_global, 2)';
     
     next_image_open = lung_image.BlankCopy;

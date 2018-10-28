@@ -31,9 +31,6 @@ classdef PTKPulmonarySegments < PTKPlugin
         ButtonWidth = 6
         ButtonHeight = 2
         GeneratePreview = true
-
-        MemoryCachePolicy = 'Temporary'
-        DiskCachePolicy = 'Permanent'        
     end
     
     methods (Static)

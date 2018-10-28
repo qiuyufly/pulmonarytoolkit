@@ -60,8 +60,8 @@ function figure_handle = PTKDrawMetricVsMetric(table, metric_x, metric_y, contex
     end
     
     % Work out tick spacing for x and y axes
-    [x_tick_spacing, min_x, max_x] = MimGraphUtilities.GetOptimalTickSpacing(0, max_x);
-    [y_tick_spacing, min_y, max_y] = MimGraphUtilities.GetOptimalTickSpacing(0, max_y);
+    [x_tick_spacing, min_x, max_x] = PTKGraphUtilities.GetOptimalTickSpacing(0, max_x);
+    [y_tick_spacing, min_y, max_y] = PTKGraphUtilities.GetOptimalTickSpacing(0, max_y);
 
     figure_handle = figure;
     set(figure_handle, 'Units', 'centimeters');
@@ -82,7 +82,7 @@ function figure_handle = PTKDrawMetricVsMetric(table, metric_x, metric_y, contex
         colour = colours{patient_list_index};
         symbol = symbols{patient_list_index};
         
-        PlotForDataset(result_list{patient_list_index}, axes_handle, colour, symbol, marker_size, marker_line_width);
+        PlotForLung(result_list{patient_list_index}, axes_handle, colour, symbol, marker_size, marker_line_width);
         
     end
     
@@ -100,8 +100,8 @@ end
 
 function results = GetResultsFromTable(table, patient_name, x_metric, y_metric, context_list)
     results = [];
-    results.x_values = cell2mat(CoreContainerUtilities.CellEmptyToNan(GetValueListFromTable(table, patient_name, x_metric, context_list)));
-    results.y_values = cell2mat(CoreContainerUtilities.CellEmptyToNan(GetValueListFromTable(table, patient_name, y_metric, context_list)));
+    results.x_values = cell2mat(PTKContainerUtilities.CellEmptyToNan(GetValueListFromTable(table, patient_name, x_metric, context_list)));
+    results.y_values = cell2mat(PTKContainerUtilities.CellEmptyToNan(GetValueListFromTable(table, patient_name, y_metric, context_list)));
     invalid = isnan(results.x_values) | isnan(results.y_values);
     results.x_values = results.x_values(~invalid);
     results.y_values = results.y_values(~invalid);
@@ -119,7 +119,7 @@ function results = GetValueListFromTable(table, patient_name, metric_name, conte
     end
 end
 
-function PlotForDataset(results, axes_handle, colour, symbol, marker_size, marker_line_width)
+function PlotForLung(results, axes_handle, colour, symbol, marker_size, marker_line_width)
     
     % Plot markers    
     xv = results.x_values;
